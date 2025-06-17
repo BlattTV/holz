@@ -295,7 +295,26 @@ function closeProduktModal() {
 }
 
 // --- DRAG & DROP FIX ---
-// --- NEUES DRAG & DROP für ARTIKEL ERSTELLEN ---
+// Imgur Upload Funktion (wird auch für Edit verwendet)
+async function uploadToImgur(file) {
+  const formData = new FormData();
+  formData.append("image", file);
+  const res = await fetch("https://api.imgur.com/3/image", {
+    method: "POST",
+    headers: {
+      Authorization: "Client-ID 819a2f6e2add1cd"
+    },
+    body: formData
+  });
+  const data = await res.json();
+  if (data.success) {
+    return data.data.link; // Bild-URL
+  } else {
+    throw new Error("Upload zu Imgur fehlgeschlagen");
+  }
+}
+
+// --- DRAG & DROP für ARTIKEL ERSTELLEN ---
 function setupBildDropzone() {
   let artikelBilderLocal = [];
   const dropzone = document.getElementById('bild-dropzone');
@@ -322,24 +341,25 @@ function setupBildDropzone() {
     e.preventDefault();
     newDropzone.classList.remove('dragover');
   });
-  newDropzone.addEventListener('drop', e => {
+  newDropzone.addEventListener('drop', async e => {
     e.preventDefault();
     newDropzone.classList.remove('dragover');
-    handleFiles(e.dataTransfer.files);
+    await handleFiles(e.dataTransfer.files);
   });
-  newFileInput.addEventListener('change', e => {
-    handleFiles(e.target.files);
+  newFileInput.addEventListener('change', async e => {
+    await handleFiles(e.target.files);
   });
-  function handleFiles(files) {
-    Array.from(files).forEach(file => {
-      if (!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        artikelBilderLocal.push(evt.target.result);
+  async function handleFiles(files) {
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) continue;
+      try {
+        const url = await uploadToImgur(file);
+        artikelBilderLocal.push(url);
         renderPreview();
-      };
-      reader.readAsDataURL(file);
-    });
+      } catch (err) {
+        alert('Bild-Upload zu Imgur fehlgeschlagen!');
+      }
+    }
   }
   function renderPreview() {
     newPreview.innerHTML = '';
@@ -406,24 +426,25 @@ function setupEditBildDropzone() {
     e.preventDefault();
     newDropzone.classList.remove('dragover');
   });
-  newDropzone.addEventListener('drop', e => {
+  newDropzone.addEventListener('drop', async e => {
     e.preventDefault();
     newDropzone.classList.remove('dragover');
-    handleFiles(e.dataTransfer.files);
+    await handleFiles(e.dataTransfer.files);
   });
-  newFileInput.addEventListener('change', e => {
-    handleFiles(e.target.files);
+  newFileInput.addEventListener('change', async e => {
+    await handleFiles(e.target.files);
   });
-  function handleFiles(files) {
-    Array.from(files).forEach(file => {
-      if (!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        editArtikelBilderLocal.push(evt.target.result);
+  async function handleFiles(files) {
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) continue;
+      try {
+        const url = await uploadToImgur(file);
+        editArtikelBilderLocal.push(url);
         renderPreview();
-      };
-      reader.readAsDataURL(file);
-    });
+      } catch (err) {
+        alert('Bild-Upload zu Imgur fehlgeschlagen!');
+      }
+    }
   }
   function renderPreview() {
     newPreview.innerHTML = '';
