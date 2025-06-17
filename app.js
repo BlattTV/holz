@@ -314,7 +314,7 @@ async function uploadToCloudinary(file) {
 
 // --- DRAG & DROP für ARTIKEL ERSTELLEN ---
 function setupBildDropzone() {
-  let artikelBilderLocal = [];
+  artikelBilder = [];
   const dropzone = document.getElementById('bild-dropzone');
   const fileInput = document.getElementById('bild-file-input');
   const preview = document.getElementById('bild-preview');
@@ -352,7 +352,7 @@ function setupBildDropzone() {
       if (!file.type.startsWith('image/')) continue;
       try {
         const url = await uploadToCloudinary(file);
-        artikelBilderLocal.push(url);
+        artikelBilder.push(url);
         renderPreview();
       } catch (err) {
         alert('Bild-Upload zu Cloudinary fehlgeschlagen!');
@@ -361,7 +361,7 @@ function setupBildDropzone() {
   }
   function renderPreview() {
     newPreview.innerHTML = '';
-    artikelBilderLocal.forEach((src, idx) => {
+    artikelBilder.forEach((src, idx) => {
       const img = document.createElement('img');
       img.src = src;
       img.style.maxWidth = '60px';
@@ -377,7 +377,7 @@ function setupBildDropzone() {
       del.style.color = '#d93b30';
       del.style.fontWeight = 'bold';
       del.onclick = () => {
-        artikelBilderLocal.splice(idx, 1);
+        artikelBilder.splice(idx, 1);
         renderPreview();
       };
       const wrap = document.createElement('div');
@@ -389,17 +389,11 @@ function setupBildDropzone() {
     });
   }
   newPreview.innerHTML = '';
-  // Schreibe die Bilder in das globale Array beim Absenden
-  const form = document.getElementById('add-artikel-form');
-  if (form) {
-    form.onsubmit = function(e) {
-      artikelBilder = [...artikelBilderLocal];
-    };
-  }
 }
-// --- NEUES DRAG & DROP für ARTIKEL BEARBEITEN ---
+
+// --- DRAG & DROP für ARTIKEL BEARBEITEN ---
 function setupEditBildDropzone() {
-  let editArtikelBilderLocal = [];
+  editArtikelBilder = [];
   const dropzone = document.getElementById('edit-bild-dropzone');
   const fileInput = document.getElementById('edit-bild-file-input');
   const preview = document.getElementById('edit-bild-preview');
@@ -437,7 +431,7 @@ function setupEditBildDropzone() {
       if (!file.type.startsWith('image/')) continue;
       try {
         const url = await uploadToCloudinary(file);
-        editArtikelBilderLocal.push(url);
+        editArtikelBilder.push(url);
         renderPreview();
       } catch (err) {
         alert('Bild-Upload zu Cloudinary fehlgeschlagen!');
@@ -446,7 +440,7 @@ function setupEditBildDropzone() {
   }
   function renderPreview() {
     newPreview.innerHTML = '';
-    editArtikelBilderLocal.forEach((src, idx) => {
+    editArtikelBilder.forEach((src, idx) => {
       const img = document.createElement('img');
       img.src = src;
       img.style.maxWidth = '60px';
@@ -462,7 +456,7 @@ function setupEditBildDropzone() {
       del.style.color = '#d93b30';
       del.style.fontWeight = 'bold';
       del.onclick = () => {
-        editArtikelBilderLocal.splice(idx, 1);
+        editArtikelBilder.splice(idx, 1);
         renderPreview();
       };
       const wrap = document.createElement('div');
@@ -474,187 +468,6 @@ function setupEditBildDropzone() {
     });
   }
   newPreview.innerHTML = '';
-  // Schreibe die Bilder in das globale Array beim Absenden
-  const form = document.getElementById('edit-artikel-form');
-  if (form) {
-    form.onsubmit = function(e) {
-      editArtikelBilder = [...editArtikelBilderLocal];
-    };
-  }
-}
-
-// Admin-Panel Tabs und Bearbeiten-Logik
-let editArtikelBilder = [];
-let artikelBilder = [];
-// --- NEUES DRAG & DROP für ARTIKEL ERSTELLEN ---
-function setupBildDropzone() {
-  let artikelBilderLocal = [];
-  const dropzone = document.getElementById('bild-dropzone');
-  const fileInput = document.getElementById('bild-file-input');
-  const preview = document.getElementById('bild-preview');
-  if (!dropzone || !fileInput || !preview) return;
-
-  dropzone.replaceWith(dropzone.cloneNode(true));
-  const newDropzone = document.getElementById('bild-dropzone');
-  const newFileInput = document.getElementById('bild-file-input');
-  const newPreview = document.getElementById('bild-preview');
-
-  newDropzone.addEventListener('click', (e) => {
-    if (e.target === newDropzone || e.target.id === 'bild-dropzone-text') {
-      newFileInput.value = '';
-      newFileInput.click();
-    }
-  });
-  newDropzone.addEventListener('dragover', e => {
-    e.preventDefault();
-    newDropzone.classList.add('dragover');
-  });
-  newDropzone.addEventListener('dragleave', e => {
-    e.preventDefault();
-    newDropzone.classList.remove('dragover');
-  });
-  newDropzone.addEventListener('drop', async e => {
-    e.preventDefault();
-    newDropzone.classList.remove('dragover');
-    await handleFiles(e.dataTransfer.files);
-  });
-  newFileInput.addEventListener('change', async e => {
-    await handleFiles(e.target.files);
-  });
-  async function handleFiles(files) {
-    for (const file of files) {
-      if (!file.type.startsWith('image/')) continue;
-      try {
-        const url = await uploadToCloudinary(file);
-        artikelBilderLocal.push(url);
-        renderPreview();
-      } catch (err) {
-        alert('Bild-Upload zu Cloudinary fehlgeschlagen!');
-      }
-    }
-  }
-  function renderPreview() {
-    newPreview.innerHTML = '';
-    artikelBilderLocal.forEach((src, idx) => {
-      const img = document.createElement('img');
-      img.src = src;
-      img.style.maxWidth = '60px';
-      img.style.maxHeight = '60px';
-      img.style.borderRadius = '6px';
-      img.style.border = '1px solid #eee';
-      img.title = 'Bild ' + (idx+1);
-      // Entfernen-Button
-      const del = document.createElement('span');
-      del.textContent = '×';
-      del.style.cursor = 'pointer';
-      del.style.marginLeft = '-18px';
-      del.style.color = '#d93b30';
-      del.style.fontWeight = 'bold';
-      del.onclick = () => {
-        artikelBilderLocal.splice(idx, 1);
-        renderPreview();
-      };
-      const wrap = document.createElement('div');
-      wrap.style.position = 'relative';
-      wrap.style.display = 'inline-block';
-      wrap.appendChild(img);
-      wrap.appendChild(del);
-      newPreview.appendChild(wrap);
-    });
-  }
-  newPreview.innerHTML = '';
-  // Schreibe die Bilder in das globale Array beim Absenden
-  const form = document.getElementById('add-artikel-form');
-  if (form) {
-    form.onsubmit = function(e) {
-      artikelBilder = [...artikelBilderLocal];
-    };
-  }
-}
-// --- NEUES DRAG & DROP für ARTIKEL BEARBEITEN ---
-function setupEditBildDropzone() {
-  let editArtikelBilderLocal = [];
-  const dropzone = document.getElementById('edit-bild-dropzone');
-  const fileInput = document.getElementById('edit-bild-file-input');
-  const preview = document.getElementById('edit-bild-preview');
-  if (!dropzone || !fileInput || !preview) return;
-
-  dropzone.replaceWith(dropzone.cloneNode(true));
-  const newDropzone = document.getElementById('edit-bild-dropzone');
-  const newFileInput = document.getElementById('edit-bild-file-input');
-  const newPreview = document.getElementById('edit-bild-preview');
-
-  newDropzone.addEventListener('click', (e) => {
-    if (e.target === newDropzone || e.target.id === 'edit-bild-dropzone-text') {
-      newFileInput.value = '';
-      newFileInput.click();
-    }
-  });
-  newDropzone.addEventListener('dragover', e => {
-    e.preventDefault();
-    newDropzone.classList.add('dragover');
-  });
-  newDropzone.addEventListener('dragleave', e => {
-    e.preventDefault();
-    newDropzone.classList.remove('dragover');
-  });
-  newDropzone.addEventListener('drop', async e => {
-    e.preventDefault();
-    newDropzone.classList.remove('dragover');
-    await handleFiles(e.dataTransfer.files);
-  });
-  newFileInput.addEventListener('change', async e => {
-    await handleFiles(e.target.files);
-  });
-  async function handleFiles(files) {
-    for (const file of files) {
-      if (!file.type.startsWith('image/')) continue;
-      try {
-        const url = await uploadToCloudinary(file);
-        editArtikelBilderLocal.push(url);
-        renderPreview();
-      } catch (err) {
-        alert('Bild-Upload zu Cloudinary fehlgeschlagen!');
-      }
-    }
-  }
-  function renderPreview() {
-    newPreview.innerHTML = '';
-    editArtikelBilderLocal.forEach((src, idx) => {
-      const img = document.createElement('img');
-      img.src = src;
-      img.style.maxWidth = '60px';
-      img.style.maxHeight = '60px';
-      img.style.borderRadius = '6px';
-      img.style.border = '1px solid #eee';
-      img.title = 'Bild ' + (idx+1);
-      // Entfernen-Button
-      const del = document.createElement('span');
-      del.textContent = '×';
-      del.style.cursor = 'pointer';
-      del.style.marginLeft = '-18px';
-      del.style.color = '#d93b30';
-      del.style.fontWeight = 'bold';
-      del.onclick = () => {
-        editArtikelBilderLocal.splice(idx, 1);
-        renderPreview();
-      };
-      const wrap = document.createElement('div');
-      wrap.style.position = 'relative';
-      wrap.style.display = 'inline-block';
-      wrap.appendChild(img);
-      wrap.appendChild(del);
-      newPreview.appendChild(wrap);
-    });
-  }
-  newPreview.innerHTML = '';
-  // Schreibe die Bilder in das globale Array beim Absenden
-  const form = document.getElementById('edit-artikel-form');
-  if (form) {
-    form.onsubmit = function(e) {
-      editArtikelBilder = [...editArtikelBilderLocal];
-    };
-  }
 }
 
 // Admin-Panel Tabs und Bearbeiten-Logik
