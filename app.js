@@ -137,16 +137,24 @@ function renderArtikel() {
         <h3>${a.name}</h3>
         <div class="desc">${a.beschreibung || ''}</div>
         <div class="price">${preisText}</div>
-        <a href="${a.kleinanzeigen ? a.kleinanzeigen : '#'}" class="btn contact-btn" target="_blank" rel="noopener">Kleinanzeigen</a>
+        ${a.kleinanzeigen ? `<a href="${a.kleinanzeigen}" class="btn contact-btn" target="_blank" rel="noopener">Kleinanzeigen</a>` : ''}
         ${a.status === "ausverkauft" ? '<div class="soldout-badge">Ausverkauft</div>' : ""}
         ${isAdmin ? `<button class='btn delete-btn' data-id='${a.id}' tabindex="-1">Löschen</button>` : ""}
         <div class="artikel-id-admin" style="${isAdmin ? '' : 'display:none;'}">ID: ${a.id}</div>
       `;
-      // Klick auf Card öffnet Modal (außer auf Löschen-Button)
+      // Klick auf Card öffnet Modal (außer auf Löschen-Button oder Kleinanzeigen-Link)
       card.addEventListener('click', function(e) {
         if (e.target.classList.contains('delete-btn')) return;
+        if (e.target.classList.contains('contact-btn')) return;
         openProduktModal(a);
       });
+      // Verhindere, dass Klick auf Kleinanzeigen-Link das Card-Event auslöst (aber NICHT preventDefault!)
+      const contactBtn = card.querySelector('.contact-btn');
+      if (contactBtn) {
+        contactBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+      }
       card.addEventListener('keydown', function(e) {
         if ((e.key === 'Enter' || e.key === ' ') && !e.target.classList.contains('delete-btn')) {
           openProduktModal(a);
