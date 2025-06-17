@@ -480,7 +480,39 @@ function setupEditBildDropzone() {
   newPreview.innerHTML = '';
 }
 
-// Admin-Panel Tabs und Bearbeiten-Logik
+// Merker für aktuell ausgewählte Artikel-ID im Bearbeiten-Panel
+let editArtikelSelectedId = null;
+
+function fillEditArtikelSelect() {
+  const select = document.getElementById('edit-artikel-select');
+  // Aktuell ausgewählte ID global merken
+  if (select.value) editArtikelSelectedId = select.value;
+  select.innerHTML = '';
+  artikel.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = a.name + ' (ID: ' + a.id + ')';
+    select.appendChild(opt);
+  });
+  // Nach Neuaufbau: Auswahl wiederherstellen, sonst ersten Artikel wählen
+  if (artikel.length) {
+    if (editArtikelSelectedId && Array.from(select.options).some(opt => opt.value == editArtikelSelectedId)) {
+      select.value = editArtikelSelectedId;
+      loadEditArtikel(editArtikelSelectedId);
+    } else {
+      select.selectedIndex = 0;
+      loadEditArtikel(select.options[0].value);
+      editArtikelSelectedId = select.options[0].value;
+    }
+  }
+  select.onchange = function() {
+    editArtikelSelectedId = this.value;
+    loadEditArtikel(this.value);
+    setupEditBildDropzone();
+  };
+  setupEditBildDropzone();
+}
+
 function setupAdminPanelTabs() {
   const tabCreate = document.getElementById('admin-tab-create');
   const tabEdit = document.getElementById('admin-tab-edit');
@@ -513,33 +545,7 @@ function setupAdminPanelTabs() {
     }, 100);
   };
 }
-function fillEditArtikelSelect() {
-  const select = document.getElementById('edit-artikel-select');
-  // Aktuell ausgewählte ID merken (vor dem Leeren!)
-  let prevId = select.selectedIndex >= 0 ? select.options[select.selectedIndex].value : null;
-  select.innerHTML = '';
-  artikel.forEach(a => {
-    const opt = document.createElement('option');
-    opt.value = a.id;
-    opt.textContent = a.name + ' (ID: ' + a.id + ')';
-    select.appendChild(opt);
-  });
-  // Nach Neuaufbau: Auswahl wiederherstellen, sonst ersten Artikel wählen
-  if (artikel.length) {
-    if (prevId && Array.from(select.options).some(opt => opt.value == prevId)) {
-      select.value = prevId;
-      loadEditArtikel(prevId);
-    } else {
-      select.selectedIndex = 0;
-      loadEditArtikel(select.options[0].value);
-    }
-  }
-  select.onchange = function() {
-    loadEditArtikel(this.value);
-    setupEditBildDropzone();
-  };
-  setupEditBildDropzone();
-}
+
 function loadEditArtikel(id) {
   const a = artikel.find(x => x.id == id);
   if (!a) return;
@@ -554,6 +560,7 @@ function loadEditArtikel(id) {
   editArtikelBilder = Array.isArray(a.bild) ? [...a.bild] : (a.bild ? [a.bild] : []);
   renderEditBildPreview();
 }
+
 function renderEditBildPreview() {
   const preview = document.getElementById('edit-bild-preview');
   preview.innerHTML = '';
@@ -584,50 +591,7 @@ function renderEditBildPreview() {
     preview.appendChild(wrap);
   });
 }
-function setupEditBildDropzone() {
-  const dropzone = document.getElementById('edit-bild-dropzone');
-  const fileInput = document.getElementById('edit-bild-file-input');
-  const preview = document.getElementById('edit-bild-preview');
-  if (!dropzone) return;
-  dropzone.replaceWith(dropzone.cloneNode(true));
-  const newDropzone = document.getElementById('edit-bild-dropzone');
-  const newFileInput = document.getElementById('edit-bild-file-input');
-  const newPreview = document.getElementById('edit-bild-preview');
 
-  newDropzone.addEventListener('click', (e) => {
-    if (e.target === newDropzone || e.target.id === 'edit-bild-dropzone-text') {
-      newFileInput.value = '';
-      newFileInput.click();
-    }
-  });
-  newDropzone.addEventListener('dragover', e => {
-    e.preventDefault();
-    newDropzone.classList.add('dragover');
-  });
-  newDropzone.addEventListener('dragleave', e => {
-    e.preventDefault();
-    newDropzone.classList.remove('dragover');
-  });
-  newDropzone.addEventListener('drop', e => {
-    e.preventDefault();
-    newDropzone.classList.remove('dragover');
-    handleFiles(e.dataTransfer.files);
-  });
-  newFileInput.addEventListener('change', e => {
-    handleFiles(e.target.files);
-  });
-  function handleFiles(files) {
-    Array.from(files).forEach(file => {
-      if (!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        editArtikelBilder.push(evt.target.result);
-        renderEditBildPreview();
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-}
 document.addEventListener("DOMContentLoaded", () => {
   // Scroll-Animationen initialisieren
   window.setupScrollAnimations = setupScrollAnimations;
