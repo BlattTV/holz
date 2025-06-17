@@ -534,6 +534,7 @@ function loadEditArtikel(id) {
   document.getElementById('edit-artikel-beschreibung').value = a.beschreibung || '';
   document.getElementById('edit-artikel-features').value = (a.features||[]).join('; ');
   document.getElementById('edit-artikel-kleinanzeigen').value = a.kleinanzeigen || '';
+  document.getElementById('edit-artikel-unsichtbar').checked = a.status === 'hidden';
   editArtikelBilder = Array.isArray(a.bild) ? [...a.bild] : (a.bild ? [a.bild] : []);
   renderEditBildPreview();
 }
@@ -670,6 +671,7 @@ document.addEventListener("DOMContentLoaded", () => {
     a.features = document.getElementById('edit-artikel-features').value.split(';').map(f=>f.trim()).filter(Boolean);
     a.bild = [...editArtikelBilder];
     a.kleinanzeigen = document.getElementById('edit-artikel-kleinanzeigen').value.trim();
+    a.status = document.getElementById('edit-artikel-unsichtbar').checked ? 'hidden' : '';
     artikelGeaendert();
     alert('Änderungen gespeichert!');
   });
