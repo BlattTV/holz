@@ -295,32 +295,20 @@ function closeProduktModal() {
 }
 
 // --- DRAG & DROP FIX ---
-// Imgur Upload Funktion (wird auch für Edit verwendet)
-async function uploadToImgur(file) {
+// Cloudinary Upload Funktion
+async function uploadToCloudinary(file) {
   const formData = new FormData();
-  formData.append("image", file);
-  let res;
-  try {
-    res = await fetch("https://api.imgur.com/3/image", {
-      method: "POST",
-      headers: {
-        Authorization: "Client-ID 819a2f6e2add1cd"
-      },
-      body: formData
-    });
-  } catch (networkError) {
-    throw new Error("Netzwerkfehler beim Upload zu Imgur: " + networkError.message);
-  }
-  let data;
-  try {
-    data = await res.json();
-  } catch (jsonError) {
-    throw new Error("Antwort von Imgur konnte nicht gelesen werden: " + jsonError.message);
-  }
-  if (res.ok && data.success) {
-    return data.data.link; // Bild-URL
+  formData.append('file', file);
+  formData.append('upload_preset', 'unsigned_preset');
+  const res = await fetch('https://api.cloudinary.com/v1_1/dg89cdhrz/image/upload', {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  if (res.ok) {
+    return data.secure_url;
   } else {
-    throw new Error("Upload zu Imgur fehlgeschlagen: " + (data?.data?.error || res.statusText));
+    throw new Error(data.error.message);
   }
 }
 
@@ -363,11 +351,11 @@ function setupBildDropzone() {
     for (const file of files) {
       if (!file.type.startsWith('image/')) continue;
       try {
-        const url = await uploadToImgur(file);
+        const url = await uploadToCloudinary(file);
         artikelBilderLocal.push(url);
         renderPreview();
       } catch (err) {
-        alert('Bild-Upload zu Imgur fehlgeschlagen!');
+        alert('Bild-Upload zu Cloudinary fehlgeschlagen!');
       }
     }
   }
@@ -448,11 +436,11 @@ function setupEditBildDropzone() {
     for (const file of files) {
       if (!file.type.startsWith('image/')) continue;
       try {
-        const url = await uploadToImgur(file);
+        const url = await uploadToCloudinary(file);
         editArtikelBilderLocal.push(url);
         renderPreview();
       } catch (err) {
-        alert('Bild-Upload zu Imgur fehlgeschlagen!');
+        alert('Bild-Upload zu Cloudinary fehlgeschlagen!');
       }
     }
   }
