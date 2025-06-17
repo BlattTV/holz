@@ -515,8 +515,8 @@ function setupAdminPanelTabs() {
 }
 function fillEditArtikelSelect() {
   const select = document.getElementById('edit-artikel-select');
-  // Aktuell ausgewählte ID merken
-  const prevId = select.value;
+  // Aktuell ausgewählte ID merken (vor dem Leeren!)
+  let prevId = select.selectedIndex >= 0 ? select.options[select.selectedIndex].value : null;
   select.innerHTML = '';
   artikel.forEach(a => {
     const opt = document.createElement('option');
@@ -526,15 +526,14 @@ function fillEditArtikelSelect() {
   });
   // Nach Neuaufbau: Auswahl wiederherstellen, sonst ersten Artikel wählen
   if (artikel.length) {
-    if (artikel.some(a => String(a.id) === prevId)) {
+    if (prevId && Array.from(select.options).some(opt => opt.value == prevId)) {
       select.value = prevId;
       loadEditArtikel(prevId);
     } else {
-      select.value = artikel[0].id;
-      loadEditArtikel(artikel[0].id);
+      select.selectedIndex = 0;
+      loadEditArtikel(select.options[0].value);
     }
   }
-  // Event-Listener immer neu setzen
   select.onchange = function() {
     loadEditArtikel(this.value);
     setupEditBildDropzone();
