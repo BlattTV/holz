@@ -299,18 +299,28 @@ function closeProduktModal() {
 async function uploadToImgur(file) {
   const formData = new FormData();
   formData.append("image", file);
-  const res = await fetch("https://api.imgur.com/3/image", {
-    method: "POST",
-    headers: {
-      Authorization: "Client-ID 819a2f6e2add1cd"
-    },
-    body: formData
-  });
-  const data = await res.json();
-  if (data.success) {
+  let res;
+  try {
+    res = await fetch("https://api.imgur.com/3/image", {
+      method: "POST",
+      headers: {
+        Authorization: "Client-ID 819a2f6e2add1cd"
+      },
+      body: formData
+    });
+  } catch (networkError) {
+    throw new Error("Netzwerkfehler beim Upload zu Imgur: " + networkError.message);
+  }
+  let data;
+  try {
+    data = await res.json();
+  } catch (jsonError) {
+    throw new Error("Antwort von Imgur konnte nicht gelesen werden: " + jsonError.message);
+  }
+  if (res.ok && data.success) {
     return data.data.link; // Bild-URL
   } else {
-    throw new Error("Upload zu Imgur fehlgeschlagen");
+    throw new Error("Upload zu Imgur fehlgeschlagen: " + (data?.data?.error || res.statusText));
   }
 }
 
