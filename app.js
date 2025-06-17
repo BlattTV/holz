@@ -119,39 +119,41 @@ function renderArtikel() {
   const grid = document.getElementById("artikel-grid");
   if (!grid) return;
   grid.innerHTML = "";
-  artikel.forEach(a => {
-    const card = document.createElement("div");
-    card.className = "card scroll-animate";
-    card.tabIndex = 0;
-    card.style.cursor = 'pointer';
-    let preisText = a.preis + ' €';
-    if (a.vb) preisText += ' (VB)';
-    if (a.rabatt && a.rabatt > 0) {
-      const rabattPreis = Math.round(a.preis * (1 - a.rabatt / 100));
-      preisText = `<span style='text-decoration:line-through;color:#bdbdbd;'>${a.preis} €</span> <span style='color:#d93b30;font-weight:bold;'>${rabattPreis} €</span> <span style='color:#388e3c;font-size:0.95em;'>(-${a.rabatt}%${a.vb ? ', VB' : ''})</span>`;
-    }
-    card.innerHTML = `
-      <img src="${Array.isArray(a.bild) ? a.bild[0] : a.bild}" alt="${a.name}">
-      <h3>${a.name}</h3>
-      <div class="desc">${a.beschreibung || ''}</div>
-      <div class="price">${preisText}</div>
-      <a href="${a.kleinanzeigen ? a.kleinanzeigen : '#'}" class="btn contact-btn" target="_blank" rel="noopener">Kleinanzeigen</a>
-      ${a.status === "ausverkauft" ? '<div class="soldout-badge">Ausverkauft</div>' : ""}
-      ${isAdmin ? `<button class='btn delete-btn' data-id='${a.id}' tabindex="-1">Löschen</button>` : ""}
-      <div class="artikel-id-admin" style="${isAdmin ? '' : 'display:none;'}">ID: ${a.id}</div>
-    `;
-    // Klick auf Card öffnet Modal (außer auf Löschen-Button)
-    card.addEventListener('click', function(e) {
-      if (e.target.classList.contains('delete-btn')) return;
-      openProduktModal(a);
-    });
-    card.addEventListener('keydown', function(e) {
-      if ((e.key === 'Enter' || e.key === ' ') && !e.target.classList.contains('delete-btn')) {
-        openProduktModal(a);
+  artikel
+    .filter(a => a.id !== 0 && a.status !== "hidden") // Dummy-Artikel ausblenden
+    .forEach(a => {
+      const card = document.createElement("div");
+      card.className = "card scroll-animate";
+      card.tabIndex = 0;
+      card.style.cursor = 'pointer';
+      let preisText = a.preis + ' €';
+      if (a.vb) preisText += ' (VB)';
+      if (a.rabatt && a.rabatt > 0) {
+        const rabattPreis = Math.round(a.preis * (1 - a.rabatt / 100));
+        preisText = `<span style='text-decoration:line-through;color:#bdbdbd;'>${a.preis} €</span> <span style='color:#d93b30;font-weight:bold;'>${rabattPreis} €</span> <span style='color:#388e3c;font-size:0.95em;'>(-${a.rabatt}%${a.vb ? ', VB' : ''})</span>`;
       }
+      card.innerHTML = `
+        <img src="${Array.isArray(a.bild) ? a.bild[0] : a.bild}" alt="${a.name}">
+        <h3>${a.name}</h3>
+        <div class="desc">${a.beschreibung || ''}</div>
+        <div class="price">${preisText}</div>
+        <a href="${a.kleinanzeigen ? a.kleinanzeigen : '#'}" class="btn contact-btn" target="_blank" rel="noopener">Kleinanzeigen</a>
+        ${a.status === "ausverkauft" ? '<div class="soldout-badge">Ausverkauft</div>' : ""}
+        ${isAdmin ? `<button class='btn delete-btn' data-id='${a.id}' tabindex="-1">Löschen</button>` : ""}
+        <div class="artikel-id-admin" style="${isAdmin ? '' : 'display:none;'}">ID: ${a.id}</div>
+      `;
+      // Klick auf Card öffnet Modal (außer auf Löschen-Button)
+      card.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-btn')) return;
+        openProduktModal(a);
+      });
+      card.addEventListener('keydown', function(e) {
+        if ((e.key === 'Enter' || e.key === ' ') && !e.target.classList.contains('delete-btn')) {
+          openProduktModal(a);
+        }
+      });
+      grid.appendChild(card);
     });
-    grid.appendChild(card);
-  });
   // Admin: Delete-Button Listener
   if (isAdmin) {
     document.querySelectorAll('.delete-btn').forEach(btn => {
