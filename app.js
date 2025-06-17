@@ -593,6 +593,11 @@ function renderEditBildPreview() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Wenn die Seite mit #angebote geladen wird, nach oben scrollen und Hash entfernen
+  if (window.location.hash === "#angebote") {
+    window.scrollTo(0, 0);
+    history.replaceState(null, document.title, window.location.pathname + window.location.search);
+  }
   // Scroll-Animationen initialisieren
   window.setupScrollAnimations = setupScrollAnimations;
   setupScrollAnimations();
@@ -686,3 +691,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Beim Seitenstart laden:
   window.addEventListener('DOMContentLoaded', ladeArtikel);
 });
+
+// Smooth scroll für Button "Angebote entdecken" und "Jetzt entdecken" mit speziellem Hash
+function setupCustomScroll() {
+  document.querySelectorAll('a[href="#angebote-scroll"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.getElementById('angebote');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', setupCustomScroll);
