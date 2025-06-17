@@ -515,6 +515,8 @@ function setupAdminPanelTabs() {
 }
 function fillEditArtikelSelect() {
   const select = document.getElementById('edit-artikel-select');
+  // Aktuell ausgewählte ID merken
+  const prevId = select.value;
   select.innerHTML = '';
   artikel.forEach(a => {
     const opt = document.createElement('option');
@@ -522,14 +524,21 @@ function fillEditArtikelSelect() {
     opt.textContent = a.name + ' (ID: ' + a.id + ')';
     select.appendChild(opt);
   });
-  if (artikel.length) loadEditArtikel(artikel[0].id);
+  // Nach Neuaufbau: Auswahl wiederherstellen, sonst ersten Artikel wählen
+  if (artikel.length) {
+    if (artikel.some(a => String(a.id) === prevId)) {
+      select.value = prevId;
+      loadEditArtikel(prevId);
+    } else {
+      select.value = artikel[0].id;
+      loadEditArtikel(artikel[0].id);
+    }
+  }
   // Event-Listener immer neu setzen
   select.onchange = function() {
     loadEditArtikel(this.value);
-    // Dropzone-Events nach jedem Wechsel neu setzen
     setupEditBildDropzone();
   };
-  // Dropzone-Events auch nach jedem Neuaufbau setzen
   setupEditBildDropzone();
 }
 function loadEditArtikel(id) {
