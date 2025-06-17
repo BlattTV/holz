@@ -608,7 +608,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Scroll-Animationen initialisieren
   window.setupScrollAnimations = setupScrollAnimations;
   setupScrollAnimations();
-  renderArtikel();
+  // renderArtikel(); // ENTFERNT, damit nur ladeArtikel() beim Start läuft
   document.getElementById("open-admin-login").addEventListener("click", openLoginModal);
   document.getElementById("close-admin-login").addEventListener("click", closeLoginModal);
   document.getElementById("close-admin-panel").addEventListener("click", closeAdminPanel);
