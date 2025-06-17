@@ -403,7 +403,7 @@ function setupBildDropzone() {
 
 // --- DRAG & DROP für ARTIKEL BEARBEITEN ---
 function setupEditBildDropzone() {
-  editArtikelBilder = [];
+  // KEIN editArtikelBilder = [] mehr hier! Nur Dropzone-Events setzen.
   const dropzone = document.getElementById('edit-bild-dropzone');
   const fileInput = document.getElementById('edit-bild-file-input');
   const preview = document.getElementById('edit-bild-preview');
